@@ -1,10 +1,10 @@
-require("dotenv").config();
+
 const chatInput = document.querySelector(".chat-input textarea");
 const sendChatBtn = document.querySelector(".chat-input span");
 const chatbox = document.querySelector(".chatbox");
 
 let userMessage;
-const API_KEY = process.env.API_KEY;
+const API_KEY = "AIzaSyBHMxQoqAtirpQHCpBvJrvb3odUURi9OR8";
 
 const createChatLi = (message, className)=>{
   const chatLi = document.createElement("li");
@@ -15,26 +15,20 @@ const createChatLi = (message, className)=>{
 }
 
 const generateResponse =(incomingChatLi)=>{
-  const API_URL = "https://api.openai.com/v1/chat/completions";
+  const API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
   const messageElement = incomingChatLi;
-  const requestOptions ={
+  const requestOptions = {
     method: "POST",
-    headers:{
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${API_KEY}`
-    },
-    body: JSON.stringify({
-      "model": "gpt-3.5-turbo",
-    "messages": [
-      {
-        "role": "user",
-        "content": userMessage
-      }
-    ]
-    })
-  }
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ 
+      contents: [{ 
+        role: "user", 
+        parts: [{ text: userMessage }] 
+      }] 
+    }),
+  };
   fetch(API_URL, requestOptions).then(res=> res.json()).then(data=>{
-    messageElement.textContent = data.choices[0].message.content;
+    messageElement.textContent = data.candidates[0].content.parts[0].text;
   }).catch((error)=>{
     messageElement.textContent = "Oops! Something went wrong. Please try again.";
   }).finally(()=> chatbox?.scrollTo(0, chatbox.scrollHeight));
